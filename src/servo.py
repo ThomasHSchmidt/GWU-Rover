@@ -6,11 +6,12 @@ import navio.util
 
 navio.util.check_apm()
 
-PWM_OUTPUT = 2
-SERVO_MIN = 1.250 #ms
-SERVO_MAX = 1.750 #ms
+PWM_speed = 2
+PWM_steer = 1
+SERVO_MIN = 1 #ms
+SERVO_MAX = 2 #ms
 
-with navio.pwm.PWM(PWM_OUTPUT) as pwm:
+with navio.pwm.PWM(PWM_speed) as pwm:
     pwm.set_period(50)
     pwm.enable()
 
