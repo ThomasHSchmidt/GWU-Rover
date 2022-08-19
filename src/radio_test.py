@@ -20,8 +20,10 @@ def map(x, in_min, in_max, out_min, out_max):
 
 pwm_speed = navio.pwm.PWM(PWM_speed)
 pwm_steer = navio.pwm.PWM(PWM_steer)
+pwm_speed.initialize()
 pwm_speed.set_period(50)
 pwm_speed.enable()
+pwm_steer.initialize()
 pwm_steer.set_period(50)
 pwm_steer.enable()
 
