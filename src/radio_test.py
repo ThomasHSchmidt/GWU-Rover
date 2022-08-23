@@ -8,7 +8,7 @@ navio.util.check_apm()
 
 rcin = navio.rcinput.RCInput()
     
-PWM_speed = 2
+PWM_speed = 0
 PWM_steer = 1
 SERVO_MIN = 1 #ms
 SERVO_MAX = 2 #ms
@@ -28,7 +28,7 @@ pwm_steer.set_period(50)
 pwm_steer.enable()
 
 while (True):
-        speed = rcin.read(1)
-        steer = rcin.read(0)
+        speed = int(rcin.read(1))
+        steer = int(rcin.read(0))
         pwm_steer.set_duty_cycle(map(steer,800,2100,1,2))
         pwm_speed.set_duty_cycle(map(speed,800,2100,1,2))
