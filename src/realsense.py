@@ -13,8 +13,8 @@ import pyrealsense2.pyrealsense2 as rs
 
 
 def T265_reader():
-    pos_pub = rospy.Publisher('realsense\\position', Pose, queue_size=10)
-    vel_pub = rospy.Publisher('realsense\\velocity', Twist, queue_size=10)
+    pos_pub = rospy.Publisher('realsense/position', Pose, queue_size=10)
+    vel_pub = rospy.Publisher('realsense/velocity', Twist, queue_size=10)
     vel_msg = Twist()
     pos_msg = Pose()
     rate = rospy.Rate(205) # ~200hz

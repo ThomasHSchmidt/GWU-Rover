@@ -10,7 +10,7 @@ import navio.rcinput
 
 
 def radio_publisher():
-    rcin_pub = rospy.Publisher('rcinput\\data', RCIN, queue_size=10)
+    rcin_pub = rospy.Publisher('rcinput/data', RCIN, queue_size=10)
     rate = rospy.Rate(105) # ~100hz
     while not rospy.is_shutdown():
         rcin_msg.ch1 = int(rcin.read(0))

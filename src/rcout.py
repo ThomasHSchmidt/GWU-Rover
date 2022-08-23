@@ -24,8 +24,8 @@ def speed_callback(data):
     
 def listener():
     rospy.init_node('rcout', anonymous=True)
-    rospy.Subscriber("controller\\steer", Float32, steer_callback)
-    rospy.Subscriber("controller\\speed", Float32, speed_callback)
+    rospy.Subscriber("controller/steer", Float32, steer_callback)
+    rospy.Subscriber("controller/speed", Float32, speed_callback)
     rospy.spin()
 
 if __name__ == '__main__':
