@@ -30,8 +30,8 @@ def publish_rcin_data():
     
     rate = rospy.Rate(50) # ~50hz
     while not rospy.is_shutdown():    
-        steer_pub.publish(map(rcin_msg.ch0,800,2100,-100,100))
-        speed_pub.publish(map(rcin_msg.ch1,800,2100,0,100))
+        steer_pub.publish(map(rcin_msg.ch1,800,2100,-100,100))
+        speed_pub.publish(map(rcin_msg.ch2,800,2100,-100,100))
         rate.sleep()
 
 
@@ -44,7 +44,7 @@ if __name__ == '__main__':
         pid_param_msg = PID()
         rospy.init_node('controller', anonymous=True)
         rospy.Subscriber("controller/pid_params", PID, pid_param_callback)
-        rospy.Subscriber("'rcinput/data'", RCIN, rcin_callback)
+        rospy.Subscriber("rcinput/data", RCIN, rcin_callback)
         
         publish_rcin_data()
     except rospy.ROSInterruptException:

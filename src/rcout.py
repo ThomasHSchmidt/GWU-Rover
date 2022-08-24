@@ -20,7 +20,7 @@ def map(x, in_min, in_max, out_min, out_max):
 def steer_callback(data):        
     pwm_steer.set_duty_cycle(map(data.data,-100,100,1,2))
 def speed_callback(data):
-    pwm_speed.set_duty_cycle(map(data.data,0,100,1,2))
+    pwm_speed.set_duty_cycle(map(data.data,-100,100,1,2))
     
 def listener():
     rospy.init_node('rcout', anonymous=True)
