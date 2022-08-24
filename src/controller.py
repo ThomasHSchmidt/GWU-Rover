@@ -43,8 +43,8 @@ def algo():
     while not rospy.is_shutdown():    
         
         if rcin_msg.ch6 > 1000: #the key is on 
-            tetha = math.atan2( waypoint_pos_msg.y - sensor_pos_msg.y , waypoint_pos_msg.x - sensor_pos_msg.x) * ( 180 / math.pi )
-            dist = math.sqrt( (waypoint_pos_msg.y - sensor_pos_msg.y) ** 2 , (waypoint_pos_msg.x - sensor_pos_msg.x) ** 2 )
+            tetha = math.atan2( waypoint_pos_msg.position.y - sensor_pos_msg.position.y , waypoint_pos_msg.position.x - sensor_pos_msg.position.x) * ( 180 / math.pi )
+            dist = math.sqrt( (waypoint_pos_msg.position.y - sensor_pos_msg.position.y) ** 2 , (waypoint_pos_msg.position.x - sensor_pos_msg.position.x) ** 2 )
             
             steer_pid_value = steer_pid.update_pid(0,tetha)
         
