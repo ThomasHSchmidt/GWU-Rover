@@ -12,7 +12,8 @@ from std_msgs.msg import Float32
 from PID import pid
 import math
 
-
+p = 1100
+d = 100
 
 def map(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
@@ -49,7 +50,7 @@ def waypoint_callback(data):
 
 
 def algo():
-    rate = rospy.Rate(100) # ~100hz
+    rate = rospy.Rate(150) # ~150hz
     while not rospy.is_shutdown():    
         
         if rcin_msg.ch6 > 1000: #the key is on 
@@ -58,9 +59,9 @@ def algo():
             
             steer_pid_value = steer_pid.update_pid(0,tetha)
             
-            print(str('tetha : ' + str(tetha)))
-            print(waypoint_pos_msg.position.y,waypoint_pos_msg.position.x)
-            print(sensor_pos_msg.position.y,sensor_pos_msg.position.x)
+            # print(str('tetha : ' + str(tetha)))
+            # print(waypoint_pos_msg.position.y,waypoint_pos_msg.position.x)
+            # print(sensor_pos_msg.position.y,sensor_pos_msg.position.x)
             
             # if rcin_msg.ch7 : #speed
             
@@ -68,12 +69,15 @@ def algo():
             # if linear_pos_pid_value >= 0:
             #     speed_pid_value = speed_pid.update_pid(linear_pos_pid_value,sensor_vel_msg.linear.x)
             
-            speed_pid_value = speed_pid.update_pid(0.2,sensor_vel_msg.linear.x)
-            
+            speed_pid_value = speed_pid.update_pid(sensor_vel_msg.linear.z,0.35)
+            if speed_pid_value < 50: speed_pid_value = 50
+            print(speed_pid_value)
+            print(sensor_vel_msg.linear.z)
             # steer_pub.publish(map(steer_pid_value,-1000,1000,-100,100))
             
             steer_pub.publish(map(rcin_msg.ch1,800,2100,-100,100))
             speed_pub.publish(map(speed_pid_value,-1000,1000,100,-100))
+            #speed_pub.publish(map(rcin_msg.ch2,800,2100,100,-100))
         else:
             steer_pub.publish(map(rcin_msg.ch1,800,2100,-100,100))
             speed_pub.publish(map(rcin_msg.ch2,800,2100,100,-100))
@@ -108,10 +112,10 @@ if __name__ == '__main__':
         
         
         
-        linear_pos_pid = pid(0.1,0,0)
+        linear_pos_pid = pid(0.2,0,0)
         linear_pos_pid.set_pid_limit(0.2)
         
-        speed_pid = pid(5,0,0)
+        speed_pid = pid(p,0,d)
         speed_pid.set_pid_limit(1000)
         speed_pid.set_I_limit(100)
         

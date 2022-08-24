@@ -21,16 +21,17 @@ cfg.enable_stream(rs.stream.pose)
 pipe.start(cfg)
 
 try:
-        # Wait for the next set of frames from the camera
-        frames = pipe.wait_for_frames()
+        while True:
+            # Wait for the next set of frames from the camera
+            frames = pipe.wait_for_frames()
 
-        # Fetch pose frame
-        pose = frames.get_pose_frame()
-        if pose:
-            # Print some of the pose data to the terminal
-            data = pose.get_pose_data()
-            print("Position: {}".format(data.translation))
-            print("Velocity: {}".format(data.velocity))
+            # Fetch pose frame
+            pose = frames.get_pose_frame()
+            if pose:
+                # Print some of the pose data to the terminal
+                data = pose.get_pose_data()
+                #print("Position: {}".format(data.translation))
+                print("Velocity: {}".format(data.velocity))
 
 finally:
     pipe.stop()
