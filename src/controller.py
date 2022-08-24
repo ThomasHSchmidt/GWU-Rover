@@ -27,10 +27,19 @@ def rcin_callback(data):
     rcin_msg = data
 
 
+first_t265_data = None
+def t265_position_callback(data):
+    global sensor_pos_msg, first_t265_data
+    if not first_t265_data:
+        first_t265_data = data
+        
+    sensor_pos_msg.position.x = data.position.x - first_t265_data.position.x
+    sensor_pos_msg.position.y = data.position.y - first_t265_data.position.y
 
-def t265_sensor_callback(data):
-    global sensor_pos_msg
-    sensor_pos_msg = data
+def t265_velocity_callback(data):
+    global sensor_vel_msg
+    sensor_vel_msg = data
+
 
 
 def waypoint_callback(data):
@@ -52,8 +61,19 @@ def algo():
             print(str('tetha : ' + str(tetha)))
             print(waypoint_pos_msg.position.y,waypoint_pos_msg.position.x)
             print(sensor_pos_msg.position.y,sensor_pos_msg.position.x)
-        
-            steer_pub.publish(map(steer_pid_value,-1000,1000,-100,100))
+            
+            # if rcin_msg.ch7 : #speed
+            
+            # linear_pos_pid_value = linear_pos_pid.update_pid(0,dist)
+            # if linear_pos_pid_value >= 0:
+            #     speed_pid_value = speed_pid.update_pid(linear_pos_pid_value,sensor_vel_msg.linear.x)
+            
+            speed_pid_value = speed_pid.update_pid(0.2,sensor_vel_msg.linear.x)
+            
+            # steer_pub.publish(map(steer_pid_value,-1000,1000,-100,100))
+            
+            steer_pub.publish(map(rcin_msg.ch1,800,2100,-100,100))
+            speed_pub.publish(map(speed_pid_value,-1000,1000,100,-100))
         else:
             steer_pub.publish(map(rcin_msg.ch1,800,2100,-100,100))
             speed_pub.publish(map(rcin_msg.ch2,800,2100,100,-100))
@@ -74,8 +94,9 @@ if __name__ == '__main__':
         rospy.init_node('controller', anonymous=True)
         rospy.Subscriber("controller/pid_params", PID, pid_param_callback)
         rospy.Subscriber("rcinput/data", RCIN, rcin_callback)
-        rospy.Subscriber("realsense/position", Pose, t265_sensor_callback)
-        rospy.Subscriber("contorller/next_waypoint", Pose, waypoint_callback)
+        rospy.Subscriber("realsense/position", Pose, t265_position_callback)
+        rospy.Subscriber("realsense/velocity", Twist, t265_velocity_callback)
+        rospy.Subscriber("controller/next_waypoint", Pose, waypoint_callback)
         
         
         steer_pub = rospy.Publisher("controller/steer", Float32, queue_size=10)
@@ -84,6 +105,15 @@ if __name__ == '__main__':
         steer_pid = pid(5,0,0)
         steer_pid.set_pid_limit(1000)
         steer_pid.set_I_limit(100)
+        
+        
+        
+        linear_pos_pid = pid(0.1,0,0)
+        linear_pos_pid.set_pid_limit(0.2)
+        
+        speed_pid = pid(5,0,0)
+        speed_pid.set_pid_limit(1000)
+        speed_pid.set_I_limit(100)
         
         algo()
     except rospy.ROSInterruptException:
