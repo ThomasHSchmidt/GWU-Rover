@@ -1,7 +1,8 @@
 <launch>
 
-    <node name="controller" pkg="gwurover" type="simple_radio.py" />
+    <node name="controller" pkg="gwurover" type="controller.py" />
     <node name="radio" pkg="gwurover" type="rcin.py" />
     <node name="servo" pkg="gwurover" type="rcout.py" />
+    <node name="sensor" pkg="gwurover" type="realsense.py" />
 
 </launch>
