@@ -44,9 +44,11 @@ def algo():
         
         if rcin_msg.ch6 > 1000: #the key is on 
             tetha = math.atan2( waypoint_pos_msg.position.y - sensor_pos_msg.position.y , waypoint_pos_msg.position.x - sensor_pos_msg.position.x) * ( 180 / math.pi )
-            dist = math.sqrt( (waypoint_pos_msg.position.y - sensor_pos_msg.position.y) ** 2 , (waypoint_pos_msg.position.x - sensor_pos_msg.position.x) ** 2 )
+            dist = math.sqrt( (waypoint_pos_msg.position.y - sensor_pos_msg.position.y) ** 2 + (waypoint_pos_msg.position.x - sensor_pos_msg.position.x) ** 2 )
             
             steer_pid_value = steer_pid.update_pid(0,tetha)
+            
+            rospy.loginfo(str('tetha : ' + tetha + 'pid' + steer_pid_value))
         
             steer_pub.publish(map(steer_pid_value,-1000,1000,-100,100))
         else:
