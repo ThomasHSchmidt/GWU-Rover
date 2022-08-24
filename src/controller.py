@@ -18,8 +18,9 @@ def map(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
 def pid_param_callback(data): 
-    # do sth with data.kp and so on 
-    pass 
+    steer_pid.set_term_p = data.kp
+    steer_pid.set_term_i = data.ki
+    steer_pid.set_term_d = data.kd
 
 def rcin_callback(data): 
     global rcin_msg
@@ -48,7 +49,9 @@ def algo():
             
             steer_pid_value = steer_pid.update_pid(0,tetha)
             
-            rospy.loginfo(str('tetha : ' + tetha + 'pid' + steer_pid_value))
+            print(str('tetha : ' + str(tetha)))
+            print(waypoint_pos_msg.position.y,waypoint_pos_msg.position.x)
+            print(sensor_pos_msg.position.y,sensor_pos_msg.position.x)
         
             steer_pub.publish(map(steer_pid_value,-1000,1000,-100,100))
         else:
@@ -78,7 +81,7 @@ if __name__ == '__main__':
         steer_pub = rospy.Publisher("controller/steer", Float32, queue_size=10)
         speed_pub = rospy.Publisher("controller/speed", Float32, queue_size=10)
         
-        steer_pid = pid(10,0,0)
+        steer_pid = pid(5,0,0)
         steer_pid.set_pid_limit(1000)
         steer_pid.set_I_limit(100)
         
