@@ -29,15 +29,10 @@ def rcin_callback(data):
     rcin_msg = data
 
 
-first_t265_data = None
 def t265_position_callback(data):
-    global sensor_pos_msg, first_t265_data
-    if not first_t265_data:
-        first_t265_data = data
-        
-    sensor_pos_msg.position.x = data.position.x - first_t265_data.position.x
-    sensor_pos_msg.position.y = data.position.y - first_t265_data.position.y
-
+    global sensor_pos_msg
+    sensor_pos_msg = data
+    
 def t265_velocity_callback(data):
     global sensor_vel_msg
     sensor_vel_msg = data
@@ -55,10 +50,9 @@ def algo():
     while not rospy.is_shutdown():    
         
         if rcin_msg.ch6 > 1000: #the key is on 
-            tetha = math.atan2( waypoint_pos_msg.position.y - sensor_pos_msg.position.y , waypoint_pos_msg.position.x - sensor_pos_msg.position.x) * ( 180 / math.pi )
-            dist = math.sqrt( (waypoint_pos_msg.position.y - sensor_pos_msg.position.y) ** 2 + (waypoint_pos_msg.position.x - sensor_pos_msg.position.x) ** 2 )
+            tetha = math.atan2( waypoint_pos_msg.position.y + sensor_pos_msg.position.x , waypoint_pos_msg.position.x - sensor_pos_msg.position.z) * ( 180 / math.pi )
+            dist = math.sqrt( (waypoint_pos_msg.position.y + sensor_pos_msg.position.x) ** 2 + (waypoint_pos_msg.position.x - sensor_pos_msg.position.z) ** 2 )
             
-            steer_pid_value = steer_pid.update_pid(0,tetha)
             
             # print(str('tetha : ' + str(tetha)))
             # print(waypoint_pos_msg.position.y,waypoint_pos_msg.position.x)
@@ -70,16 +64,21 @@ def algo():
             # if linear_pos_pid_value >= 0:
             #     speed_pid_value = speed_pid.update_pid(linear_pos_pid_value,sensor_vel_msg.linear.x)
             
-            speed_pid_value = speed_pid.update_pid(sensor_vel_msg.linear.z,0.35)
-            if speed_pid_value < 50: speed_pid_value = 50
+            
             # print(speed_pid_value)
             # print(sensor_vel_msg.linear.z)
-            
             (roll, pitch, yaw) = euler_from_quaternion ([sensor_pos_msg.orientation.x, sensor_pos_msg.orientation.y, 
                                                          sensor_pos_msg.orientation.z, sensor_pos_msg.orientation.w])
-            print(roll * ( 180 / math.pi ))
-            print(pitch * ( 180 / math.pi ))
-            print(yaw * ( 180 / math.pi ))
+            x_speed = sensor_vel_msg.linear.z * math.cos(pitch) + sensor_vel_msg.linear.x * math.sin(pitch)
+
+            steer_pid_value = steer_pid.update_pid(pitch,tetha)
+            
+            speed_pid_value = speed_pid.update_pid(x_speed,0.2)
+            if speed_pid_value < 50: speed_pid_value = 50
+
+            print(x_speed)
+            print(speed_pid_value)
+
             # steer_pub.publish(map(steer_pid_value,-1000,1000,-100,100))
             
             steer_pub.publish(map(rcin_msg.ch1,800,2100,-100,100))
