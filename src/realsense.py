@@ -29,6 +29,7 @@ def T265_reader():
             # Print some of the pose data to the terminal
             data = pose.get_pose_data()
             pos_msg.position = data.translation
+            pos_msg.quaternion = data.rotation
             vel_msg.linear = data.velocity
             pos_pub.publish(pos_msg)
             vel_pub.publish(vel_msg)
