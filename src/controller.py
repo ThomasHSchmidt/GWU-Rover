@@ -8,6 +8,7 @@ from geometry_msgs.msg import Pose
 
 
 from std_msgs.msg import Float32
+from tf.transformations import euler_from_quaternion, quaternion_from_euler
 
 from PID import pid
 import math
@@ -71,8 +72,12 @@ def algo():
             
             speed_pid_value = speed_pid.update_pid(sensor_vel_msg.linear.z,0.35)
             if speed_pid_value < 50: speed_pid_value = 50
-            print(speed_pid_value)
-            print(sensor_vel_msg.linear.z)
+            # print(speed_pid_value)
+            # print(sensor_vel_msg.linear.z)
+            (roll, pitch, yaw) = euler_from_quaternion (sensor_vel_msg.orientation)
+            print(roll * ( 180 / math.pi ))
+            print(pitch * ( 180 / math.pi ))
+            print(yaw * ( 180 / math.pi ))
             # steer_pub.publish(map(steer_pid_value,-1000,1000,-100,100))
             
             steer_pub.publish(map(rcin_msg.ch1,800,2100,-100,100))
@@ -98,7 +103,7 @@ if __name__ == '__main__':
         rospy.init_node('controller', anonymous=True)
         rospy.Subscriber("controller/pid_params", PID, pid_param_callback)
         rospy.Subscriber("rcinput/data", RCIN, rcin_callback)
-        rospy.Subscriber("realsense/position", Pose, t265_position_callback)
+        rospy.Subscriber("realsense/pose", Pose, t265_position_callback)
         rospy.Subscriber("realsense/velocity", Twist, t265_velocity_callback)
         rospy.Subscriber("controller/next_waypoint", Pose, waypoint_callback)
         

@@ -13,7 +13,7 @@ import pyrealsense2.pyrealsense2 as rs
 
 
 def T265_reader():
-    pos_pub = rospy.Publisher('realsense/position', Pose, queue_size=10)
+    pos_pub = rospy.Publisher('realsense/pose', Pose, queue_size=10)
     vel_pub = rospy.Publisher('realsense/velocity', Twist, queue_size=10)
     vel_msg = Twist()
     pos_msg = Pose()
@@ -29,7 +29,7 @@ def T265_reader():
             # Print some of the pose data to the terminal
             data = pose.get_pose_data()
             pos_msg.position = data.translation
-            pos_msg.quaternion = data.rotation
+            pos_msg.orientation = data.rotation
             vel_msg.linear = data.velocity
             pos_pub.publish(pos_msg)
             vel_pub.publish(vel_msg)
