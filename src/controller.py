@@ -74,7 +74,9 @@ def algo():
             if speed_pid_value < 50: speed_pid_value = 50
             # print(speed_pid_value)
             # print(sensor_vel_msg.linear.z)
-            (roll, pitch, yaw) = euler_from_quaternion (sensor_vel_msg.orientation)
+            
+            (roll, pitch, yaw) = euler_from_quaternion ([sensor_pos_msg.orientation.x, sensor_pos_msg.orientation.y, 
+                                                         sensor_pos_msg.orientation.z, sensor_pos_msg.orientation.w])
             print(roll * ( 180 / math.pi ))
             print(pitch * ( 180 / math.pi ))
             print(yaw * ( 180 / math.pi ))
