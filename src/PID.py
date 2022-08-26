@@ -23,7 +23,8 @@ class pid:
         self.time = time.time()
 
         elapsed_time = int((self.time - self.last_time)*1000)
-        if elapsed_time >= 10:
+        
+        if elapsed_time:
 
             self.P = self.Error * self.Kp
             self.D = ((self.Error - self.last_Error)/(elapsed_time) )* self.Kd

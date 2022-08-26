@@ -6,13 +6,13 @@ import rospy
 from std_msgs.msg import Float32
 import navio.pwm
 import navio.util
-
+#import time
 
 
 PWM_speed = 0
 PWM_steer = 1
 
-
+#ltime = 0
 
 def map(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
@@ -20,7 +20,10 @@ def map(x, in_min, in_max, out_min, out_max):
 def steer_callback(data):        
     pwm_steer.set_duty_cycle(map(data.data,-100,100,1,2))
 def speed_callback(data):
+    #global ltime
     pwm_speed.set_duty_cycle(map(data.data,-100,100,1,2))
+    #print("last : "+str((time.time() - ltime)*1000))
+    #ltime = time.time()
     
 def listener():
     rospy.init_node('rcout', anonymous=True)

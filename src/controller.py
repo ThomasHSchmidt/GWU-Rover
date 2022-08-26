@@ -13,8 +13,9 @@ from tf import euler_from_quaternion
 from PID import pid
 import math
 
-p = 1100
-d = 100
+p = 1000
+i = 5
+d = 20
 
 def map(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
@@ -46,7 +47,7 @@ def waypoint_callback(data):
 
 
 def algo():
-    rate = rospy.Rate(150) # ~150hz
+    rate = rospy.Rate(200) # ~150hz
     while not rospy.is_shutdown():    
         
         if rcin_msg.ch6 > 1000: #the key is on 
@@ -71,19 +72,26 @@ def algo():
                                                          sensor_pos_msg.orientation.z, sensor_pos_msg.orientation.w])
             x_speed = sensor_vel_msg.linear.z * math.cos(pitch) + sensor_vel_msg.linear.x * math.sin(pitch)
 
-            steer_pid_value = steer_pid.update_pid(pitch,tetha)
+            pitch = -pitch * (180/math.pi)
+            #steer_pid_value = steer_pid.update_pid(pitch,tetha)
             
             speed_pid_value = speed_pid.update_pid(x_speed,0.2)
             if speed_pid_value < 50: speed_pid_value = 50
 
-            print(x_speed)
-            print(speed_pid_value)
+            #print(x_speed)
+            #print(speed_pid_value)
 
-            # steer_pub.publish(map(steer_pid_value,-1000,1000,-100,100))
+            steer_pid_value = steer_pid.update_pid(pitch,tetha)
+
+            print(pitch)
+            print(tetha)
+            print(steer_pid_value)
+
+            steer_pub.publish(map(steer_pid_value,-1000,1000,-100,100))
             
-            steer_pub.publish(map(rcin_msg.ch1,800,2100,-100,100))
-            speed_pub.publish(map(speed_pid_value,-1000,1000,100,-100))
-            #speed_pub.publish(map(rcin_msg.ch2,800,2100,100,-100))
+            #steer_pub.publish(map(rcin_msg.ch1,800,2100,-100,100))
+            #speed_pub.publish(map(speed_pid_value,-1000,1000,100,-100))
+            speed_pub.publish(map(rcin_msg.ch2,800,2100,100,-100))
         else:
             steer_pub.publish(map(rcin_msg.ch1,800,2100,-100,100))
             speed_pub.publish(map(rcin_msg.ch2,800,2100,100,-100))
@@ -100,7 +108,8 @@ if __name__ == '__main__':
         sensor_pos_msg = Pose()
         sensor_vel_msg = Twist()
         waypoint_pos_msg = Pose()
-        
+        waypoint_pos_msg.position.x=0.5
+
         rospy.init_node('controller', anonymous=True)
         rospy.Subscriber("controller/pid_params", PID, pid_param_callback)
         rospy.Subscriber("rcinput/data", RCIN, rcin_callback)
@@ -112,7 +121,7 @@ if __name__ == '__main__':
         steer_pub = rospy.Publisher("controller/steer", Float32, queue_size=10)
         speed_pub = rospy.Publisher("controller/speed", Float32, queue_size=10)
         
-        steer_pid = pid(5,0,0)
+        steer_pid = pid(100,0,0)
         steer_pid.set_pid_limit(1000)
         steer_pid.set_I_limit(100)
         
@@ -121,7 +130,7 @@ if __name__ == '__main__':
         linear_pos_pid = pid(0.2,0,0)
         linear_pos_pid.set_pid_limit(0.2)
         
-        speed_pid = pid(p,0,d)
+        speed_pid = pid(p,i,d)
         speed_pid.set_pid_limit(1000)
         speed_pid.set_I_limit(100)
         
