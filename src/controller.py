@@ -13,9 +13,9 @@ from tf import euler_from_quaternion
 from PID import pid
 import math
 
-p = 500
+p = 0.2
 i = 0
-d = 1500
+d = 0
 
 def map(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
@@ -47,7 +47,7 @@ def waypoint_callback(data):
 
 
 def algo():
-    rate = rospy.Rate(200) # ~150hz
+    rate = rospy.Rate(200) # ~200hz
     while not rospy.is_shutdown():    
         
         if rcin_msg.ch6 > 1000: #the key is on 
@@ -60,12 +60,6 @@ def algo():
             # print(sensor_pos_msg.position.y,sensor_pos_msg.position.x)
             
             # if rcin_msg.ch7 : #speed
-            
-            # linear_pos_pid_value = linear_pos_pid.update_pid(0,dist)
-            # if linear_pos_pid_value >= 0:
-            #     speed_pid_value = speed_pid.update_pid(linear_pos_pid_value,sensor_vel_msg.linear.x)
-            
-            
             # print(speed_pid_value)
             # print(sensor_vel_msg.linear.z)
             (roll, pitch, yaw) = euler_from_quaternion ([sensor_pos_msg.orientation.x, sensor_pos_msg.orientation.y, 
@@ -75,21 +69,22 @@ def algo():
             pitch = -pitch * (180/math.pi)
             #steer_pid_value = steer_pid.update_pid(pitch,tetha)
             
-            sspeed = map(rcin_msg.ch3,800,2100,0.1,0.8)
-            speed_pid_value = speed_pid.update_pid(x_speed,sspeed)
-            #if speed_pid_value < 50: speed_pid_value = 50
-
-            print("{:.2f}".format(sspeed))
-            print("{:.2f}".format(x_speed))
-            #print(speed_pid_value)
+            # sspeed = map(rcin_msg.ch3,800,2100,0.1,0.8)
+            # speed_pid_value = speed_pid.update_pid(x_speed,sspeed)
+            
+            linear_pos_pid_value = linear_pos_pid.update_pid(0,dist)
+            if linear_pos_pid_value >= 0:
+                speed_pid_value = speed_pid.update_pid(linear_pos_pid_value,sensor_vel_msg.linear.x)
+            
+            
+            print("{:.2f}".format(dist))
 
             steer_pid_value = steer_pid.update_pid(pitch,tetha)
 
             #print("{:.2f}".format(pitch))
-            #print("{:.2f}".format(roll * (180/math.pi)))
-            #print("{:.2f}".format(yaw * (180/math.pi)))
-            #print(tetha)
-            #print(steer_pid_value)
+            
+            # print(tetha)
+            # print(steer_pid_value)
 
             #steer_pub.publish(map(steer_pid_value,-1000,1000,-100,100))
             
@@ -112,7 +107,8 @@ if __name__ == '__main__':
         sensor_pos_msg = Pose()
         sensor_vel_msg = Twist()
         waypoint_pos_msg = Pose()
-        waypoint_pos_msg.position.x=0.5
+        waypoint_pos_msg.position.x=0.1
+        # waypoint_pos_msg.position.y=0.1
 
         rospy.init_node('controller', anonymous=True)
         rospy.Subscriber("controller/pid_params", PID, pid_param_callback)
@@ -131,10 +127,10 @@ if __name__ == '__main__':
         
         
         
-        linear_pos_pid = pid(0.2,0,0)
-        linear_pos_pid.set_pid_limit(0.2)
+        linear_pos_pid = pid(p,i,d)
+        linear_pos_pid.set_pid_limit(0.4)
         
-        speed_pid = pid(p,i,d)
+        speed_pid = pid(500,0,1500)
         speed_pid.set_pid_limit(1000)
         speed_pid.set_I_limit(100)
         
