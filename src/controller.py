@@ -13,7 +13,7 @@ from tf import euler_from_quaternion
 from PID import pid
 import math
 
-p = 0.2
+p = 70
 i = 0
 d = 0
 
@@ -53,7 +53,13 @@ def algo():
         if rcin_msg.ch6 > 1000: #the key is on 
             tetha = math.atan2( waypoint_pos_msg.position.y + sensor_pos_msg.position.x , waypoint_pos_msg.position.x - sensor_pos_msg.position.z) * ( 180 / math.pi )
             dist = math.sqrt( (waypoint_pos_msg.position.y + sensor_pos_msg.position.x) ** 2 + (waypoint_pos_msg.position.x - sensor_pos_msg.position.z) ** 2 )
-            
+            if tetha > 90: 
+                tetha = -(tetha - 180)
+                neg = -1
+            elif tetha < -90: 
+                tetha = -(tetha + 180)
+                neg = -1
+            else: neg = 1
             
             # print(str('tetha : ' + str(tetha)))
             # print(waypoint_pos_msg.position.y,waypoint_pos_msg.position.x)
@@ -71,24 +77,21 @@ def algo():
             
             # sspeed = map(rcin_msg.ch3,800,2100,0.1,0.8)
             # speed_pid_value = speed_pid.update_pid(x_speed,sspeed)
-            
-            linear_pos_pid_value = linear_pos_pid.update_pid(0,dist)
-            if linear_pos_pid_value >= 0:
-                speed_pid_value = speed_pid.update_pid(linear_pos_pid_value,sensor_vel_msg.linear.x)
-            
-            
-            print("{:.2f}".format(dist))
+            if dist > 0.06:
+                #next waypoint
+                
+                linear_pos_pid_value = linear_pos_pid.update_pid(0,dist)
+                if linear_pos_pid_value >= 0:
+                     speed_pid_value = speed_pid.update_pid(x_speed,linear_pos_pid_value)
+                steer_pid_value = steer_pid.update_pid(pitch,tetha)
 
-            steer_pid_value = steer_pid.update_pid(pitch,tetha)
+            print("{:.2f}".format(pitch))
+            print(tetha)
+            print(steer_pid_value)
 
-            #print("{:.2f}".format(pitch))
+            steer_pub.publish(map(neg * steer_pid_value,-1000,1000,-100,100))
             
-            # print(tetha)
-            # print(steer_pid_value)
-
-            #steer_pub.publish(map(steer_pid_value,-1000,1000,-100,100))
-            
-            steer_pub.publish(map(rcin_msg.ch1,800,2100,-100,100))
+            #steer_pub.publish(map(rcin_msg.ch1,800,2100,-100,100))
             speed_pub.publish(map(190 + speed_pid_value,-1000,1000,100,-100))
             #speed_pub.publish(map(rcin_msg.ch2,800,2100,100,-100))
         else:
@@ -107,8 +110,8 @@ if __name__ == '__main__':
         sensor_pos_msg = Pose()
         sensor_vel_msg = Twist()
         waypoint_pos_msg = Pose()
-        waypoint_pos_msg.position.x=0.1
-        # waypoint_pos_msg.position.y=0.1
+        waypoint_pos_msg.position.x=1
+        waypoint_pos_msg.position.y=0.5
 
         rospy.init_node('controller', anonymous=True)
         rospy.Subscriber("controller/pid_params", PID, pid_param_callback)
@@ -121,16 +124,16 @@ if __name__ == '__main__':
         steer_pub = rospy.Publisher("controller/steer", Float32, queue_size=10)
         speed_pub = rospy.Publisher("controller/speed", Float32, queue_size=10)
         
-        steer_pid = pid(100,0,0)
+        steer_pid = pid(p,i,d)
         steer_pid.set_pid_limit(1000)
         steer_pid.set_I_limit(100)
         
         
         
-        linear_pos_pid = pid(p,i,d)
+        linear_pos_pid = pid(0.9,0,0.6)
         linear_pos_pid.set_pid_limit(0.4)
         
-        speed_pid = pid(500,0,1500)
+        speed_pid = pid(250,0,2500)
         speed_pid.set_pid_limit(1000)
         speed_pid.set_I_limit(100)
         
