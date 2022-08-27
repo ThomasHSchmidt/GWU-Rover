@@ -13,9 +13,9 @@ from tf import euler_from_quaternion
 from PID import pid
 import math
 
-p = 1000
-i = 5
-d = 20
+p = 500
+i = 0
+d = 1500
 
 def map(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
@@ -70,28 +70,32 @@ def algo():
             # print(sensor_vel_msg.linear.z)
             (roll, pitch, yaw) = euler_from_quaternion ([sensor_pos_msg.orientation.x, sensor_pos_msg.orientation.y, 
                                                          sensor_pos_msg.orientation.z, sensor_pos_msg.orientation.w])
-            x_speed = sensor_vel_msg.linear.z * math.cos(pitch) + sensor_vel_msg.linear.x * math.sin(pitch)
+            x_speed = abs(sensor_vel_msg.linear.z * math.cos(pitch)) + abs(sensor_vel_msg.linear.x * math.sin(pitch))
 
             pitch = -pitch * (180/math.pi)
             #steer_pid_value = steer_pid.update_pid(pitch,tetha)
             
-            speed_pid_value = speed_pid.update_pid(x_speed,0.2)
-            if speed_pid_value < 50: speed_pid_value = 50
+            sspeed = map(rcin_msg.ch3,800,2100,0.1,0.8)
+            speed_pid_value = speed_pid.update_pid(x_speed,sspeed)
+            #if speed_pid_value < 50: speed_pid_value = 50
 
-            #print(x_speed)
+            print("{:.2f}".format(sspeed))
+            print("{:.2f}".format(x_speed))
             #print(speed_pid_value)
 
             steer_pid_value = steer_pid.update_pid(pitch,tetha)
 
-            print(pitch)
-            print(tetha)
-            print(steer_pid_value)
+            #print("{:.2f}".format(pitch))
+            #print("{:.2f}".format(roll * (180/math.pi)))
+            #print("{:.2f}".format(yaw * (180/math.pi)))
+            #print(tetha)
+            #print(steer_pid_value)
 
-            steer_pub.publish(map(steer_pid_value,-1000,1000,-100,100))
+            #steer_pub.publish(map(steer_pid_value,-1000,1000,-100,100))
             
-            #steer_pub.publish(map(rcin_msg.ch1,800,2100,-100,100))
-            #speed_pub.publish(map(speed_pid_value,-1000,1000,100,-100))
-            speed_pub.publish(map(rcin_msg.ch2,800,2100,100,-100))
+            steer_pub.publish(map(rcin_msg.ch1,800,2100,-100,100))
+            speed_pub.publish(map(190 + speed_pid_value,-1000,1000,100,-100))
+            #speed_pub.publish(map(rcin_msg.ch2,800,2100,100,-100))
         else:
             steer_pub.publish(map(rcin_msg.ch1,800,2100,-100,100))
             speed_pub.publish(map(rcin_msg.ch2,800,2100,100,-100))
