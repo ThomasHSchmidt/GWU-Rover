@@ -47,8 +47,8 @@ def t265_velocity_callback(data):
 
 def algo():
     rate = rospy.Rate(200) # ~200hz
-    waypoint_po_x = 1
-    waypoint_po_y = 0.5
+    waypoint_po_x = 0
+    waypoint_po_y = 0
     while not rospy.is_shutdown():    
         
         if rcin_msg.ch6 > 1000: #the key is on 
@@ -56,13 +56,13 @@ def algo():
             
             tetha = math.atan2( waypoint_po_y + sensor_pos_msg.position.x , waypoint_po_x - sensor_pos_msg.position.z) * ( 180 / math.pi )
             dist = math.sqrt( (waypoint_po_y + sensor_pos_msg.position.x) ** 2 + (waypoint_po_x - sensor_pos_msg.position.z) ** 2 )
-            if tetha > 90:
-                tetha = -(tetha - 180)
-                neg = -1
-            elif tetha < -90:
-                tetha = -(tetha + 180)
-                neg = -1
-            else: neg = 1
+            #if tetha > 90:
+            #    tetha = -(tetha - 180)
+            #    neg = -1
+            #elif tetha < -90:
+            #    tetha = -(tetha + 180)
+            #    neg = -1
+            #else: neg = 1
             
             
             if rcin_msg.ch8 > 2000: #speed
@@ -73,12 +73,13 @@ def algo():
                 #print('eight')
             else:
                 traj_shape = ''
-            
-            if dist < 0.1:
+            #print(tetha)
+           
+            if dist < 0.2:
                 #next waypoint
                 resp = get_waypoint(traj_shape)
-                waypoint_po_x = 2
-                waypoint_po_y = 2
+                waypoint_po_x = resp.x
+                waypoint_po_y = resp.y
                 print('new point recived:',waypoint_po_x,waypoint_po_y)
             
 
@@ -88,16 +89,23 @@ def algo():
                                                             sensor_pos_msg.orientation.z, sensor_pos_msg.orientation.w])
             x_speed = abs(sensor_vel_msg.linear.z * math.cos(pitch)) + abs(sensor_vel_msg.linear.x * math.sin(pitch))
             pitch = -pitch * (180/math.pi)
-            
+            yaw = yaw * (180/math.pi)
+            if abs(yaw) > 100:pitch = (180 - abs(pitch)) * abs(pitch)/pitch
+            print("{:3.1f}".format(tetha),
+                          "{:3.1f}".format(pitch),
+                          "{:3.1f}".format(sensor_pos_msg.position.z),
+                          "{:3.1f}".format(-sensor_pos_msg.position.x), end='\r')
             # steer_pid_value = steer_pid.update_pid(pitch,tetha)
             
             # sspeed = map(rcin_msg.ch3,800,2100,0.1,0.8)
             # speed_pid_value = speed_pid.update_pid(x_speed,sspeed)
 
+            if abs(pitch) > 90 and abs(tetha) > 90 and pitch*tetha < 0: neg = -1
+            else: neg = 1
 
             linear_pos_pid_value = linear_pos_pid.update_pid(0,dist)
             if linear_pos_pid_value >= 0:
-                    speed_pid_value = speed_pid.update_pid(x_speed,linear_pos_pid_value)
+                    speed_pid_value = speed_pid.update_pid(x_speed,0.4)
             steer_pid_value = steer_pid.update_pid(pitch,tetha)
 
             # print("{:.2f}".format(pitch))
@@ -107,8 +115,8 @@ def algo():
             steer_pub.publish(map(neg * steer_pid_value,-1000,1000,-100,100))
             speed_pub.publish(map(190 + speed_pid_value,-1000,1000,100,-100))
             
-            # steer_pub.publish(map(rcin_msg.ch1,800,2100,-100,100))
-            # speed_pub.publish(map(rcin_msg.ch2,800,2100,100,-100))
+            #steer_pub.publish(map(rcin_msg.ch1,800,2100,-100,100))
+            #speed_pub.publish(map(rcin_msg.ch2,800,2100,100,-100))
         else:
             steer_pub.publish(map(rcin_msg.ch1,800,2100,-100,100))
             speed_pub.publish(map(rcin_msg.ch2,800,2100,100,-100))
@@ -147,7 +155,7 @@ if __name__ == '__main__':
         
         
         
-        linear_pos_pid = pid(0.9,0,0.6)
+        linear_pos_pid = pid(1,0,0.35)
         linear_pos_pid.set_pid_limit(0.4)
         
         speed_pid = pid(250,0,2500)

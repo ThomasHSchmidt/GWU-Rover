@@ -1,9 +1,9 @@
 <launch>
 
-    <node name="controller" pkg="gwurover" type="controller.py"  output="screen"/>
+    <node name="controller" pkg="gwurover" type="controller.py" output="screen" />
     <node name="radio" pkg="gwurover" type="rcin.py" />
     <node name="servo" pkg="gwurover" type="rcout.py" />
     <node name="sensor" pkg="gwurover" type="realsense.py" />
-    <node name="traj" pkg="gwurover" type="traj_reader.py" />
+    <node name="traj" pkg="gwurover" type="traj_reader.py"/>
 
 </launch>
