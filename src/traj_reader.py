@@ -17,12 +17,14 @@ def trajectory_file_reader(req):
     if not first_traj_flag:
         first_traj_flag = True
         index_holder = 0
+	print(os.path.join(os.path.join(base_dir,'trajectory'), req.traj + '.csv'))
         file = open(os.path.join(os.path.join(base_dir,'trajectory'), req.traj + '.csv'), 'r')
         csv_file_reader = csv.reader(file)
+	print("here is this",csv_file_reader)
         
     
     if(csv_file_reader):
-        if index_holder == len(csv_file_reader): index_holder = 0
+        #if index_holder == len(csv_file_reader): index_holder = 0
         resp = WayPointResponse(x=csv_file_reader[index_holder][0], y=csv_file_reader[index_holder][1])
         index_holder += 1
         return resp
