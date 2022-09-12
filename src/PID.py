@@ -49,18 +49,18 @@ class pid:
 
     def get_term_i(self):
         return self.I
-    def set_term_i(self,I):
-        self.I = I
+    def set_term_ki(self,Ki):
+        self.Ki = Ki
 
     def get_term_p(self):
         return self.P
-    def set_term_p(self,P):
-        self.P = P
+    def set_term_kp(self,Kp):
+        self.Kp = Kp
 
     def get_term_d(self):
         return self.D
-    def set_term_d(self,D):
-        self.D = D
+    def set_term_kd(self,Kd):
+        self.Kd = Kd
 
     def set_term_offset(self,offset):
         self.Offset = offset
