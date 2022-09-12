@@ -26,8 +26,8 @@ def trajectory_file_reader(req):
         
     
     if(csv_file_reader):
-        #if index_holder == len(csv_file_reader): index_holder = 0
-        resp = WayPointResponse(x=csv_file_reader[index_holder][0], y=csv_file_reader[index_holder][1])
+        if index_holder == len(csv_file_reader): index_holder = 0
+        resp = WayPointResponse(x=float(csv_file_reader[index_holder][0]), y=float(csv_file_reader[index_holder][1]))
         index_holder += 1
         return resp
     else:

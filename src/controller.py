@@ -47,8 +47,8 @@ def t265_velocity_callback(data):
 
 def algo():
     rate = rospy.Rate(200) # ~200hz
-    waypoint_po_x = 0
-    waypoint_po_y = 0
+    waypoint_po_x = 1
+    waypoint_po_y = 0.5
     while not rospy.is_shutdown():    
         
         if rcin_msg.ch6 > 1000: #the key is on 
@@ -67,16 +67,18 @@ def algo():
             
             if rcin_msg.ch8 > 2000: #speed
                 traj_shape = 'circle'
+                #print('circle')
             elif rcin_msg.ch8 < 1000:
                 traj_shape = 'eight'
+                #print('eight')
             else:
                 traj_shape = ''
             
-            if dist < 0.09:
+            if dist < 0.1:
                 #next waypoint
                 resp = get_waypoint(traj_shape)
-                waypoint_po_x = resp.x
-                waypoint_po_y = resp.y
+                waypoint_po_x = 2
+                waypoint_po_y = 2
                 print('new point recived:',waypoint_po_x,waypoint_po_y)
             
 
