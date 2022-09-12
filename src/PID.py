@@ -2,13 +2,14 @@ import time
 
 
 class pid:
-    def __init__(self,Kp,Ki,Kd):
+    def __init__(self,Kp,Ki,Kd,offset=0):
         self.P = 0
         self.I = 0
         self.D = 0
         self.Kp = Kp
         self.Ki = Ki
         self.Kd = Kd
+        self.Offset = offset
         self.last_time = 0
         self.time = 0
         self.last_Error = 0
@@ -42,9 +43,9 @@ class pid:
                 if pid > self.pid_limit: pid = self.pid_limit
                 if pid < -self.pid_limit: pid = -self.pid_limit
             self.last_pid = pid
-            return pid
+            return pid + self.Offset
         else:
-            return self.last_pid
+            return self.last_pid + self.Offset
 
     def get_term_i(self):
         return self.I
@@ -61,6 +62,8 @@ class pid:
     def set_term_d(self,D):
         self.D = D
 
+    def set_term_offset(self,offset):
+        self.Offset = offset
 
     def set_pid_limit(self,limit):
         self.pid_limit = limit

@@ -20,9 +20,15 @@ def map(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
 def pid_param_callback(data): 
-    steer_pid.set_term_p = data.kp
-    steer_pid.set_term_i = data.ki
-    steer_pid.set_term_d = data.kd
+    if data.kp_steer >= 0: steer_pid.set_term_p = data.kp_steer
+    if data.ki_steer >= 0: steer_pid.set_term_i = data.ki_steer
+    if data.kd_steer >= 0: steer_pid.set_term_d = data.kd_steer
+    if data.offset_steer >= 0: steer_pid.set_term_offset = data.offset_steer
+    
+    if data.kp_speed >= 0: speed_pid.set_term_p = data.kp_speed
+    if data.ki_speed >= 0: speed_pid.set_term_i = data.ki_speed
+    if data.kd_speed >= 0: speed_pid.set_term_d = data.kd_speed
+    if data.offset_speed >= 0: speed_pid.set_term_offset = data.offset_speed
 
 def rcin_callback(data): 
     global rcin_msg
@@ -39,10 +45,6 @@ def t265_velocity_callback(data):
 
 
 
-# def waypoint_callback(data):
-#     global waypoint_pos_msg
-#     waypoint_pos_msg = data
-#     # TODO: reset I term
 
 
 def algo():
@@ -56,24 +58,15 @@ def algo():
             
             tetha = math.atan2( waypoint_po_y + sensor_pos_msg.position.x , waypoint_po_x - sensor_pos_msg.position.z) * ( 180 / math.pi )
             dist = math.sqrt( (waypoint_po_y + sensor_pos_msg.position.x) ** 2 + (waypoint_po_x - sensor_pos_msg.position.z) ** 2 )
-            #if tetha > 90:
-            #    tetha = -(tetha - 180)
-            #    neg = -1
-            #elif tetha < -90:
-            #    tetha = -(tetha + 180)
-            #    neg = -1
-            #else: neg = 1
+
             
             
             if rcin_msg.ch8 > 2000: #speed
                 traj_shape = 'circle'
-                #print('circle')
             elif rcin_msg.ch8 < 1000:
                 traj_shape = 'eight'
-                #print('eight')
             else:
                 traj_shape = ''
-            #print(tetha)
            
             if dist < 0.2:
                 #next waypoint
@@ -95,10 +88,7 @@ def algo():
                           "{:3.1f}".format(pitch),
                           "{:3.1f}".format(sensor_pos_msg.position.z),
                           "{:3.1f}".format(-sensor_pos_msg.position.x), end='\r')
-            # steer_pid_value = steer_pid.update_pid(pitch,tetha)
             
-            # sspeed = map(rcin_msg.ch3,800,2100,0.1,0.8)
-            # speed_pid_value = speed_pid.update_pid(x_speed,sspeed)
 
             if abs(pitch) > 90 and abs(tetha) > 90 and pitch*tetha < 0: neg = -1
             else: neg = 1
@@ -108,10 +98,7 @@ def algo():
                     speed_pid_value = speed_pid.update_pid(x_speed,0.4)
             steer_pid_value = steer_pid.update_pid(pitch,tetha)
 
-            # print("{:.2f}".format(pitch))
-            # print(tetha)
-            # print(steer_pid_value)
-
+            
             steer_pub.publish(map(neg * steer_pid_value,-1000,1000,-100,100))
             speed_pub.publish(map(190 + speed_pid_value,-1000,1000,100,-100))
             
@@ -132,21 +119,18 @@ if __name__ == '__main__':
         pid_param_msg = PID()
         sensor_pos_msg = Pose()
         sensor_vel_msg = Twist()
-        # waypoint_pos_msg = Pose()
-        # waypoint_pos_msg.position.x=1
-        # waypoint_pos_msg.position.y=0.5
 
         rospy.init_node('controller', anonymous=True)
         rospy.Subscriber("controller/pid_params", PID, pid_param_callback)
         rospy.Subscriber("rcinput/data", RCIN, rcin_callback)
         rospy.Subscriber("realsense/pose", Pose, t265_position_callback)
         rospy.Subscriber("realsense/velocity", Twist, t265_velocity_callback)
-        # rospy.Subscriber("controller/next_waypoint", Pose, waypoint_callback)
         
         
         steer_pub = rospy.Publisher("controller/steer", Float32, queue_size=10)
         speed_pub = rospy.Publisher("controller/speed", Float32, queue_size=10)
         
+        rospy.wait_for_service('trajectory/next_waypoint')
         get_waypoint = rospy.ServiceProxy('trajectory/next_waypoint', WayPoint)
         
         steer_pid = pid(70,0,0)
@@ -158,7 +142,7 @@ if __name__ == '__main__':
         linear_pos_pid = pid(1,0,0.35)
         linear_pos_pid.set_pid_limit(0.4)
         
-        speed_pid = pid(250,0,2500)
+        speed_pid = pid(250,0,2500,offset=190)
         speed_pid.set_pid_limit(1000)
         speed_pid.set_I_limit(100)
         
