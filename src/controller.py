@@ -8,7 +8,7 @@ from geometry_msgs.msg import Pose
 from gwurover.srv import *
 
 
-from std_msgs.msg import Float32
+from std_msgs.msg import Float32, String
 from tf import euler_from_quaternion
 
 from path_generator import traj
@@ -51,6 +51,7 @@ def algo():
     rate = rospy.Rate(200) # ~200hz
     waypoint_po_x = 0
     waypoint_po_y = 0
+    sensor_reset_key_on_flag = False
     while not rospy.is_shutdown():    
         
         if rcin_msg.ch6 > 1000: #the key is on 
@@ -105,6 +106,11 @@ def algo():
             #steer_pub.publish(map(rcin_msg.ch1,800,2100,-100,100))
             #speed_pub.publish(map(rcin_msg.ch2,800,2100,100,-100))
         else:
+            if rcin_msg.ch5 > 1000 and not sensor_reset_key_on_flag:
+                sensor_reset_key_on_flag = True
+                sensor_reset_pub.publish('')
+            else: 
+                sensor_reset_key_on_flag = False
             steer_pub.publish(map(rcin_msg.ch1,800,2100,-100,100))
             speed_pub.publish(map(rcin_msg.ch2,800,2100,100,-100))
         rate.sleep()
@@ -129,6 +135,7 @@ if __name__ == '__main__':
         
         steer_pub = rospy.Publisher("controller/steer", Float32, queue_size=10)
         speed_pub = rospy.Publisher("controller/speed", Float32, queue_size=10)
+        sensor_reset_pub = rospy.Publisher("realsense/reset", String, queue_size=10)
         
         rospy.wait_for_service('trajectory/next_waypoint')
         get_waypoint = rospy.ServiceProxy('trajectory/next_waypoint', WayPoint)
