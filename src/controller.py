@@ -19,16 +19,16 @@ import math
 def map(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
-def pid_param_callback(data): 
-    if data.kp_steer >= 0: steer_pid.set_term_p = data.kp_steer
-    if data.ki_steer >= 0: steer_pid.set_term_i = data.ki_steer
-    if data.kd_steer >= 0: steer_pid.set_term_d = data.kd_steer
-    if data.offset_steer >= 0: steer_pid.set_term_offset = data.offset_steer
+def pid_param_callback(data):
+    if data.kp_steer >= 0: steer_pid.set_term_kp(data.kp_steer)
+    if data.ki_steer >= 0: steer_pid.set_term_ki(data.ki_steer)
+    if data.kd_steer >= 0: steer_pid.set_term_kd(data.kd_steer)
+    if data.offset_steer >= 0: steer_pid.set_term_offset(data.offset_steer)
     
-    if data.kp_speed >= 0: speed_pid.set_term_p = data.kp_speed
-    if data.ki_speed >= 0: speed_pid.set_term_i = data.ki_speed
-    if data.kd_speed >= 0: speed_pid.set_term_d = data.kd_speed
-    if data.offset_speed >= 0: speed_pid.set_term_offset = data.offset_speed
+    if data.kp_speed >= 0: speed_pid.set_term_kp(data.kp_speed)
+    if data.ki_speed >= 0: speed_pid.set_term_ki(data.ki_speed)
+    if data.kd_speed >= 0: speed_pid.set_term_kd(data.kd_speed)
+    if data.offset_speed >= 0: speed_pid.set_term_offset(data.offset_speed)
 
 def rcin_callback(data): 
     global rcin_msg
@@ -100,7 +100,7 @@ def algo():
 
             
             steer_pub.publish(map(neg * steer_pid_value,-1000,1000,-100,100))
-            speed_pub.publish(map(190 + speed_pid_value,-1000,1000,100,-100))
+            speed_pub.publish(map(speed_pid_value,-1000,1000,100,-100))
             
             #steer_pub.publish(map(rcin_msg.ch1,800,2100,-100,100))
             #speed_pub.publish(map(rcin_msg.ch2,800,2100,100,-100))
