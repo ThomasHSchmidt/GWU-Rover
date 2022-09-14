@@ -52,6 +52,7 @@ def algo():
     waypoint_po_x = 0
     waypoint_po_y = 0
     sensor_reset_key_on_flag = False
+    traj_shape = ""
     while not rospy.is_shutdown():    
         
         if rcin_msg.ch6 > 1000: #the key is on 
