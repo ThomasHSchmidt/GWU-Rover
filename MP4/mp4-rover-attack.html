@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<link type="text/css" rel="stylesheet" href="theme.css" />
+	<meta name="Format" content="complete" />
+	<title>CSCI 6907-88/3907-88:Secure Autonomous Systems</title>
+
+	<style>
+		btable, bth, btd {border: 1px solid black; }
+
+
+
+		.content{
+ 		 word-wrap:break-word; /*old browsers*/
+  		overflow-wrap:break-word;
+		}
+
+		.overflow-wrap-hack{
+		max-width:1px;
+		}	
+
+		table {
+            border-spacing: 0px;
+  			width:100%; /*must be set (to any value)*/
+         }
+		table th {border:solid 1px #fab; word-wrap:break-word;}
+		table td {border:solid 1px #fab; word-wrap:break-word; word-break: break-all;}
+		</style>
+</head>
+
+<body>
+
+	<h2 id="sibin-csci6907-fall_2022">Secure Autonomous Systems</h2>
+	<h3> Instructor: <a href="https://sibin.github.io/sibin">Prof. Sibin Mohan</a>, The George Washington University</h3>
+	<h3> CSCI 6907/3907 | Fall 2022 | TR 12:45PM - 02:00PM PT | SMTH 115 </h3>
+	
+	<br>
+	<h3> MP IV-B: Rover controll and attack</h3>
+
+	<h4>Administrivia</h4>
+	<table style="width:40%">
+		<thread>
+		<colgroup>
+			<col span="1" style="width: 40%">
+			<col span="1" style="width: 7%">
+		 </colgroup>
+			<tbody>
+				<tr>
+					<td>Announcement Date</td>			  
+					<td><b>Nov. 07, 2022</b></td>
+				</tr>
+
+				<tr>
+					<td>Submission Date</td>			  
+					<td><b>Dec. 08, 2022</b></td>
+				</tr>
+
+				<tr>
+					<td>Submission Time</td>			  
+					<td><b>11:59PM </b></td>
+				</tr>
+
+				<tr>
+					<td>Total Points</td>			  
+					<td><b>15</b></td>
+				</tr>
+			</tbody>
+		</thread>
+	</table>
+
+<p>
+	<h4>Objective </h4>
+	
+	<h4>Prelude</h4>
+	
+
+	<h4>Make a new mission</h4>
+	for a making a new mission you have to generate new waypont to show the rover the path it has to take.
+	<h6>what is a waypoint</h6>
+	waypoints are 
+	<h6>Rover </h6>
+    <h4>controller attack</h4>
+	controller is 
+	<h6>PID controller</h6>
+
+
+
+	<h4>timming attack</h4>
+
+
+	<h4>Submission Instructions</h4>
+	<ul>
+		<li>
+            make a mission : generating path of the picture below by creating waypoints that the robot can take. <b>[5 points]</b>
+			<br>
+			<b>Bonuse :</b> Mathematicaly show that the point your choosing is reachable by rover? [5 points]
+			<br>
+			<img src="images/path.PNG" alt="path" style="width:20%">
+		</li>
+		<li>
+            controller attack: deply the controller attack and make the rover stop middle of the mission and show the result to TA<b>[10 points]</b>
+			<br>
+			<b>Bonuse :</b> Make the robot follow another path just by changing pid parameters. [5 points]
+			
+		</li>
+		<li>timming attack : run the timming attack on all the misiions you have(rectangle, eight, part1) and show the result to the TA.<b>[10 points]</b></li>
+	</ul>
+</body>
