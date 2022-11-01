@@ -68,6 +68,8 @@
 
 <p>
 	<h4>Objective </h4>
+	In this MP we assume that we want to attack the rover and with some methodes like brute forcing or anything else we 
+	gaind a privilaged access to the rovers system.  
 	
 	<h4>Prelude</h4>
 	
@@ -75,30 +77,86 @@
 	<h4>Make a new mission</h4>
 	for a making a new mission you have to generate new waypont to show the rover the path it has to take.
 	<h6>what is a waypoint</h6>
-	waypoints are 
+	Waypoints define the route that robot follows. Each waypoint stores a position and robot try to reach that point with it self's limitation.
 	<h6>Rover </h6>
     <h4>controller attack</h4>
 	controller is 
 	<h6>PID controller</h6>
+	A proportional-integration-derivative PID controller is a system to control different operations like speed, flow rate, pressure, temperature, and various other processing variables. It provides the ability to automatically maintain the set value and compensate for changes in process and environment.
+
+	PID controller uses a closed feedback control system that regulates the required parameters to its set point/desired value by playing with various operations. 
+
+	
+	<br>
+	<img src="images/PID-Calculations-1.jpg" alt="PID_math" style="width:80%">
+	<br>
+	Kp, Ki, and Kd are the coefficients of proportional, integral, and deviation terms. These coefficients can also be represented as P, I, and D.
+	the process of setting the optimal gains for Kp, Ki and Kd to get an ideal response from a control system is called tuning.
+	<br>
+	<img src="images/PID-controller.jpg" alt="PID_digram" style="width:80%">
+	<br>
+	The Rover position of the Rover is controlled by two PID controllers, the first one is controlling the speed and the other one is cotrolling the steering angle and
+	each PID controllers have their own coefficients which they are tuned. 
+	<br>
+	For this Part we want to mess around teh coefficients and see how we can prevent the robot to follow the correct orders. 
+	<br>
+
+	When you are running ROS on the Rover there is a node listening on topic <code>controller/pid_params</code> which can change the coefficients on run. This is for further tunning the rover in a test.
+	some how the enginers forgot to encypct or remove this access to the controller.
+	
+	<h6>How to publish data on a ROS topic</h6>
+	There are several ways to publish a data on a certain topic you can write an script in <a href="http://wiki.ros.org/ROS/Tutorials/WritingPublisherSubscriber%28python%29">python</a> or <a href="http://wiki.ros.org/ROS/Tutorials/WritingPublisherSubscriber%28c%2B%2B%29">cpp</a> to do that
+	but for this case you can just use the terminal to publish the data just once which you do with following command: 
+	<br>
+	<code>rostopic pub &lt;topic-name&gt; &lt;topic-type&gt; [data...]</code>
+	<br>
+	to find the tupic-type you can run this command: 
+	<br>
+	<code>rostopic info &lt;topic-name&gt;</code> 
+	<br> 
+	And finally for the data structure you can just tap [tab] key twise and terminal will write the structrue for you.
+	
 
 
 
-	<h4>timming attack</h4>
+	<h4>Timming attack</h4>
+	
+	Timming attac covers a large part of definitions as a method to break a security mechanisms of an applicatio by gaining information that is indirectly leaked by the application
+	form the time an algorithm takes. the other defenition for this type of attack is push a system to miss all the scheduled tmimming. Generally any attack which is related to time is called timming attack. 
+	<br> 
+	<h6>system scheduler</h6>
+	scheduling is the process of controlling and prioritizing messages sent to a processor.  
+	An internal operating system program, called the scheduler, performs this task. 
+	The goal is maintaining a constant amount of work for the processor, eliminating highs and lows 
+	in the workload and making sure each process is completed within a reasonable time frame. 
+	While scheduling is important to all systems, it is especially important in a real-time system.
+
+	<br>
+	<br>
+	Any process in the scheduler has a deadline which is a very important property in real-time systems like this rover.
+	the task should be done before the deadline.but waht if the adversary can do something to occupy the whole processor resorces and push 
+	the system to miss all deadlines?
+
+	<br>
+	The question you have to solve here is how to occupy all the computational resources on the rover while the rover is doing a mission . 
+
+
+
 
 
 	<h4>Submission Instructions</h4>
 	<ul>
 		<li>
-            make a mission : generating path of the picture below by creating waypoints that the robot can take. <b>[5 points]</b>
+            make a mission : generating path of the picture below by creating waypoints that the robot can take.<b>[5 points]</b>
 			<br>
-			<b>Bonuse :</b> Mathematicaly show that the point your choosing is reachable by rover? [5 points]
+			<b>Bonuse :</b> Mathematicaly show that the point your choosing is reachable by rover?<b>[5 points]</b>
 			<br>
 			<img src="images/path.PNG" alt="path" style="width:20%">
 		</li>
 		<li>
             controller attack: deply the controller attack and make the rover stop middle of the mission and show the result to TA<b>[10 points]</b>
 			<br>
-			<b>Bonuse :</b> Make the robot follow another path just by changing pid parameters. [5 points]
+			<b>Bonuse :</b> Make the robot follow another path just by changing pid parameters.<b>[5 points]</b>
 			
 		</li>
 		<li>timming attack : run the timming attack on all the misiions you have(rectangle, eight, part1) and show the result to the TA.<b>[10 points]</b></li>
