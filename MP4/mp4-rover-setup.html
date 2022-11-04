@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<link type="text/css" rel="stylesheet" href="theme.css" />
+	<meta name="Format" content="complete" />
+	<title>CSCI 6907-88/3907-88:Secure Autonomous Systems</title>
+
+	<style>
+		btable, bth, btd {border: 1px solid black; }
+
+
+
+		.content{
+ 		 word-wrap:break-word; /*old browsers*/
+  		overflow-wrap:break-word;
+		}
+
+		.overflow-wrap-hack{
+		max-width:1px;
+		}	
+
+		table {
+            border-spacing: 0px;
+  			width:100%; /*must be set (to any value)*/
+         }
+		table th {border:solid 1px #fab; word-wrap:break-word;}
+		table td {border:solid 1px #fab; word-wrap:break-word; word-break: break-all;}
+		</style>
+</head>
+
+<body>
+
+	<h2 id="sibin-csci6907-fall_2022">Secure Autonomous Systems</h2>
+	<h3> Instructor: <a href="https://sibin.github.io/sibin">Prof. Sibin Mohan</a>, The George Washington University</h3>
+	<h3> CSCI 6907/3907 | Fall 2022 | TR 12:45PM - 02:00PM PT | SMTH 115 </h3>
+	
+	<br>
+	<h3> MP IV-A: Rover Setup</h3>
+
+	<h4>Administrivia</h4>
+	<table style="width:40%">
+		<thread>
+		<colgroup>
+			<col span="1" style="width: 40%">
+			<col span="1" style="width: 7%">
+		 </colgroup>
+			<!--tr>
+				<th style="width:100% text-align:left"></th>
+				<th style="width:20% text-align:right"></th>
+			</tr-->
+			<tbody>
+				<tr>
+					<td>Announcement Date</td>			  
+					<td><b>Nov. 7, 2022</b></td>
+				</tr>
+
+				<tr>
+					<td>Submission Date</td>			  
+					<td><b>-</b></td>
+				</tr>
+
+				<tr>
+					<td>Submission Time</td>			  
+					<td><b>-</b></td>
+				</tr>
+
+				<tr>
+					<td>Total Points</td>			  
+					<td><b>0</b></td>
+				</tr>
+			</tbody>
+		</thread>
+	</table>
+
+	<h4>Objective </h4>
+
+	In this MP, we want to learn how a rover workes.
+	The following objectives are designed to help you familiarize with some basic parts:
+	
+	<ul>
+		<li>
+			what is ROS and how we are using it. 
+		</li>
+		<li>
+			how to ssh to a system
+		</li>
+		<li>
+			how to run and controll the rover.
+		</li>
+	</ul>
+	
+
+	<h4>Run ROS on Rover</h4>
+	<p>
+	
+		<h6>What is ROS</h6>
+		The Robot Operating System (ROS) is an open-source framework that helps researchers and developers build and reuse code between robotics applications.
+		ROS is also a global open-source community of engineers, 
+		developers and hobbyists who contribute to making robots better, 
+		more accessible and available to everyone.
+		
+		<h6>startup the Rover</h6>
+		<ol>
+			<li>each rover has 2 batteies. make sure the rovers battries are fully charged</li>
+			<li>turn on the radio controller</li>
+			<li>
+				put on of the charged battery in correct position as shown in the picture and plug it to the rover
+				<img src="images/bat_pose.jpg" alt="battery position" style="width:100%">
+			</li>
+
+			<li> reconnect the sensor by plug out and plug it in again adn turn on Rover ESC (Electronic Speed Controller) by pushing the button shown int the picture one time (dont hold the button too long) 
+				<img src="images/esc_button.jpg" alt="esc and sensor" style="width:100%">
+			</li>
+			<li>connect your computer to the same network as the rover the SSID is <code>SSID</code> and the password is <code>pass</code> </li>
+			<li>
+				accoarding to number of the rover you got you can find it's ip address here 
+				<table style="width:20%">
+					<thread>
+					<colgroup>
+						<col span="1" style="width: 2%">
+						<col span="1" style="width: 70%">
+					 </colgroup>
+						<!--tr>
+							<th style="width:100% text-align:left"></th>
+							<th style="width:20% text-align:right"></th>
+						</tr-->
+						<tbody>
+							<tr>
+								<td>1</td>			  
+								<td><b>192.168.0.223</b></td>
+							</tr>
+							<tr>
+								<td>2</td>			  
+								<td><b>192.168.0.139</b></td>
+							</tr>
+							<tr>
+								<td>3</td>			  
+								<td><b>192.168.0.205</b></td>
+							</tr>
+							<tr>
+								<td>4</td>			  
+								<td><b>192.168.0.142</b></td>
+							</tr>
+							<tr>
+								<td>5</td>			  
+								<td><b>192.168.0.193</b></td>
+							</tr>
+						</tbody>
+					</thread>
+				</table>
+			</li>
+			<li>
+				open a termianl on you computer and make a ssh connection to Rover by typing <code>ssh pi@rover-ip</code> and put <code>raspberry</code> for the login password
+			</li>
+			<li>
+				we need to run several scripts tehough this shell so one way doing that is luch several shells by <a href="https://linuxize.com/post/how-to-use-linux-screen/">screen</a>
+				<br>first write this command to creat a new shell
+				<br><code>screen -S ros_launch</code>
+				<br> in the new shell execute the rovers launch files
+				<br><code>roslauch gwurover simple_control.launch </code>
+			</li>
+			<li>detach the shell and go back to the first shell by pressing this sequnce of kesy <code>Ctrl+a</code>and <code>d</code></li>
+			<li>you should be able to control the rover with the radio control by just moving the right stick</li>
+		</ol>
+	</p>
+
+	
+	<h6>Caution</h6>
+	<ol>
+		<li>
+			ALWAYS TRUN THE ROVER OFF FIRST. before turning the radio controller off please turn of the rover first.
+			If you dont do that the rover will go full truttle and wont stop.
+		</li>
+		<li>Check the battery every 10 minutes with the battery checker. if the battery level is lower than 20 percent please charge the battery.
+			<br>This is how to use <a href="https://www.youtube.com/watch?v=ltEou8a1Ug4">battery checker</a> and <a href="https://www.youtube.com/watch?v=BqgEEuquX_Q">battery charger</a>.
+		</li>
+		<li>When you are done please put the battries on storgae mode</li>
+		
+	</ol>
+
+	<h4>Run automated mission on Rover</h4>
+	<p>
+		<ol>
+			<li>got back to the shell that you ran the launch file by typing <code>screen -r launch</code></li>
+			<li>cancle the current runnig script with pressing ctr+c</li>
+			<li>put the robot on the left down corner of the space specified for the rover
+				<br>that position is the (0,0) position for the rover. 
+			</li> 
+			<li>run this command <code>roslaunch gwurover simple_pid.launch</code></li>
+			<li>on the radio controller push the SG key(Red) to back and after that pull the SH key(Green) up to start the mission.
+				<br>	<img src="images/radio.jpg" alt="radio" style="width:100%">
+			</li>
+			<li> the rover should follow a 2x2 rectangule</li>
+		</ol>
+	</p>
+	
+
+	<h4>Submission Instructions</h4>
+	<ul>
+		<li>
+			no submition needed! show the reslut to the TA at the time your booking to work with the rover.  
+		</li>
+	</ul>
+
+</body>
+</html>
