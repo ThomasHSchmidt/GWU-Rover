@@ -113,11 +113,11 @@ def algo():
             #steer_pub.publish(map(rcin_msg.ch1,800,2100,-100,100))
             #speed_pub.publish(map(rcin_msg.ch2,800,2100,100,-100))
         else:
-            if rcin_msg.ch5 > 1000 and not sensor_reset_key_on_flag:
-                sensor_reset_key_on_flag = True
-                sensor_reset_pub.publish('')
-            else: 
-                sensor_reset_key_on_flag = False
+            # if rcin_msg.ch5 > 1000 and not sensor_reset_key_on_flag:
+            #     sensor_reset_key_on_flag = True
+            #     sensor_reset_pub.publish('')
+            # else: 
+            #     sensor_reset_key_on_flag = False
             steer_pub.publish(map(rcin_msg.ch1,800,2100,-100,100))
             speed_pub.publish(map(rcin_msg.ch2,800,2100,100,-100))
         rate.sleep()
