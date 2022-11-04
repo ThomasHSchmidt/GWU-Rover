@@ -38,7 +38,11 @@ def rcin_callback(data):
 def t265_position_callback(data):
     global sensor_pos_msg
     sensor_pos_msg = data
-    
+    ########################################################### comment this for the test rover 
+    sensor_pos_msg.position.x *= -1
+    sensor_pos_msg.position.z *= -1
+    ###########################################################
+
 def t265_velocity_callback(data):
     global sensor_vel_msg
     sensor_vel_msg = data
@@ -110,8 +114,8 @@ def algo():
             steer_pub.publish(map(neg * steer_pid_value,-1000,1000,-100,100))
             speed_pub.publish(map(speed_pid_value,-1000,1000,100,-100))
             
-            #steer_pub.publish(map(rcin_msg.ch1,800,2100,-100,100))
-            #speed_pub.publish(map(rcin_msg.ch2,800,2100,100,-100))
+            # steer_pub.publish(map(rcin_msg.ch1,800,2100,-100,100))
+            # speed_pub.publish(map(rcin_msg.ch2,800,2100,100,-100))
         else:
             # if rcin_msg.ch5 > 1000 and not sensor_reset_key_on_flag:
             #     sensor_reset_key_on_flag = True
