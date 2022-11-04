@@ -66,15 +66,15 @@ def algo():
             if rcin_msg.ch8 > 2000: #speed
                 if traj_shape != 'circle':
                     traj_shape = 'circle'
-                    waypoint_po_x,waypoint_po_y = get_waypoint(traj_shape)
+                    dist = 0
             elif rcin_msg.ch8 < 1000:
                 if traj_shape != 'eight':
                     traj_shape = 'eight'
-                    waypoint_po_x,waypoint_po_y = get_waypoint(traj_shape)
+                    dist = 0
             else:
                 if traj_shape != 'MP':
                     traj_shape = 'MP'
-                waypoint_po_x,waypoint_po_y = get_waypoint(traj_shape)
+                    dist = 0
            
             if dist < 0.2:
                 #next waypoint
