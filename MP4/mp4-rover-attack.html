@@ -67,113 +67,128 @@
 	</table>
 
 <p>
-	<h4>Objective </h4>
-	In this MP we assume that we want to attack the rover and with some methodes like brute forcing or anything else we 
-	gaind a privilaged access to the rovers system.  
-	
-	<h4>Prelude</h4>
-	
 
-	<h4>Make a new mission</h4>
-	for a making a new mission you have to generate new waypont to show the rover the path it has to take.
-	
-	<h6>Ackermann steering geometry</h6>
-    The Ackermann steering geometry is a geometric arrangement of linkages in the steering of a car or other vehicle designed to solve the problem of wheels on the 
-	inside and outside of a turn needing to trace out circles of different radii.
+    <h4>Objective </h4>
+    In this MP, we want to see what an adversary can do when it has access to the rover. 
+    The assumption is the adversary gained privileged access to the rovers system by some method like brute forcing or a man-in-the-middle attack. 
+    
+    
+    
 
-	<h6>what is a waypoint</h6>
-	Waypoints define the route that robot follows. Each waypoint stores a position and robot try to reach that point with it self's limitation.
+    <h4>Make a new mission</h4>
+    
+    <h6>what is a waypoint</h6>
+    Waypoints define the route that the robot follows. Each waypoint stores a position, and the robot tries to reach that point with its limitations.
+    <br>
+    
+    For making a new mission, you have to generate a new waypoint to show the rover the path it has to take. You can break a route into several points but how to choose them is important.
+    <h6>Sampling the trajectroy</h6>
+    Let's say we have a linear trajectory. The robot should go from (0,0) to (0,1). For this case, we can put infinit number of points between these two points, which doesn't make sense, while we can make the trajectory just 
+    by using these 2 points; on the other hand, let's say we have a curve we need at least 3 points to sample that trajectory. For example, (0,0),(1,0),(0,1), we can add more points on that trajectory to help the rover to follow it better.
+    But sometimes, adding more waypoints will harm the system. What if waypoints are not put in correct sequance, or they are so close to each other that the rover will get stuck in waypoint changing state?
+    The question is can the rover reach each point in the correct sequence?
+
+    <h6>Ackermann Steering</h6>
+    This is the mechanism used in cars where the front wheels are turning to control the steering of the vehicle. Rather than the <a href="https://en.wikipedia.org/wiki/Differential_wheeled_robot">differential</a> robots, the Ackerman cannot reach all the points because it has a limit
+    on the steering. Our rover uses the same steering system.
+    <br>
+
+    <img src="images/ackermann.jpg" alt="PID_math" style="width:50%">
+    <br>
+
+    <h6>Rover</h6>
+    The waypoints file is located at <code>catkin_ws/src/gwurover/src/trajectory</code>. Each line is coordinated in order of <code>"y,x,z"</code>. You have to edit the MP.csv file for the first part of this MP to make the shown trajectory in the submission part.
+    Each line shows a position, and the robot will automatically switch to another position(next line) after it reaches the point with an acceptable error.
+
 	<br>
-	the waypoints file are located at <code>gwurover/src/trajectory</code> you have to edit MP.csv file for the fist part of this MP to make the shown trajectory in submition part.
-	each line is showing a position and robot will autamticly switch to another position(next line) after it reaches the point with an acceptable error.
-
-	
+	To test the trajectory put the SG key on the radio controller in the middle state and pull the SF key up to start the mission.
 	
 	
 	
 	
 	
 	<h4>controller attack</h4>
-	A control system is a system, which provides the desired response by controlling the output. 
+    A control system is a system that provides the desired response by controlling the output. 
 
-	<h6>PID controller</h6>
-	A proportional-integration-derivative PID controller is a system to control different operations like speed, flow rate, pressure, temperature, and various other processing variables. It provides the ability to automatically maintain the set value and compensate for changes in process and environment.
+    <h6>PID controller</h6>
+    A proportional-integration-derivative PID controller is a system to control different operations like speed, flow rate, pressure, temperature, and various other processing variables. It provides the ability to automatically maintain the set value and compensate for changes in process and environment.
 
-	PID controller uses a closed feedback control system that regulates the required parameters to its set point/desired value by playing with various operations. 
+    PID controller uses a closed feedback control system that regulates the required parameters to its set point/desired value by playing with various operations. 
 
-	
-	<br>
-	<img src="images/PID-Calculations-1.jpg" alt="PID_math" style="width:80%">
-	<br>
-	Kp, Ki, and Kd are the coefficients of proportional, integral, and deviation terms. These coefficients can also be represented as P, I, and D.
-	the process of setting the optimal gains for Kp, Ki and Kd to get an ideal response from a control system is called tuning.
-	<br>
-	<img src="images/PID-controller.jpg" alt="PID_digram" style="width:80%">
-	<br>
-	The Rover position of the Rover is controlled by two PID controllers, the first one is controlling the speed and the other one is cotrolling the steering angle and
-	each PID controllers have their own coefficients which they are tuned. 
-	<br>
-	For this Part we want to mess around teh coefficients and see how we can prevent the robot to follow the correct orders. 
-	<br>
+    
+    <br>
+    <img src="images/PID-Calculations-1.jpg" alt="PID_math" style="width:80%">
+    <br>
+    Kp, Ki, and Kd are proportional, integral, and deviation coefficients. These coefficients can also be represented as P, I, and D.
+    <br>
+	Tuning is the process of setting the optimal gains for Kp, Ki, and Kd to get an ideal response from a control system.
+    <br>
+    <img src="images/PID-controller.jpg" alt="PID_digram" style="width:80%">
+    <br>
+    Two PID controllers control the position of the rover. The first one controls the speed, the other controls the steering angle, and
+    each PID controller has its coefficients, which are tuned. 
+    <br>
+    For this Part, we want to mess around with the coefficients and see how we can prevent the robot from following the correct orders. 
+    <br>
 
-	When you are running ROS on the Rover there is a node listening on topic <code>controller/pid_params</code> which can change the coefficients on run. This is for further tunning the rover in a test.
-	some how the enginers forgot to encypct or remove this access to the controller.
-	
-	<h6>How to publish data on a ROS topic</h6>
-	There are several ways to publish a data on a certain topic you can write an script in <a href="http://wiki.ros.org/ROS/Tutorials/WritingPublisherSubscriber%28python%29">python</a> or <a href="http://wiki.ros.org/ROS/Tutorials/WritingPublisherSubscriber%28c%2B%2B%29">cpp</a> to do that
-	but for this case you can just use the terminal to publish the data just once which you do with following command: 
-	<br>
-	<code>rostopic pub &lt;topic-name&gt; &lt;topic-type&gt; [data...]</code>
-	<br>
-	to find the tupic-type you can run this command: 
-	<br>
-	<code>rostopic info &lt;topic-name&gt;</code> 
-	<br> 
-	And finally for the data structure you can just tap [tab] key twise and terminal will write the structrue for you.
-	
+    When running ROS on the rover, there is a node listening(subscribing) on topic <code>controller/pid_params</code>, which can change the coefficients on the run. This is for further tunning the rover in a test.
+    Somehow the engineers forgot to encrypt or remove this access to the controller.
+    
+    <h6>How to publish data on a ROS topic</h6>
+    There are several ways to publish data on a certain topic. You can write a script in <a href="http://wiki.ros.org/ROS/Tutorials/WritingPublisherSubscriber%28python%29">python</a> or <a href="http://wiki.ros.org/ROS/Tutorials/WritingPublisherSubscriber%28c%2B%2B%29">cpp</a> to do that
+    but for this case, you can just use the terminal to publish the data just once, which you do with the following command: 
+    <br>
+    <code>rostopic pub &lt;topic-name&gt; &lt;topic-type&gt; [data...]</code>
+    <br>
+    To find the topic type, you can run this command: 
+    <br>
+    <code>rostopic info &lt;topic-name&gt;</code> 
+    <br> 
+    And finally, for the data structure, you can just tap the [tab] key twice, and the terminal will write the structure for you.
+    
 
 
 
 	<h4>Timming attack</h4>
-	
-	Timming attac covers a large part of definitions as a method to break a security mechanisms of an applicatio by gaining information that is indirectly leaked by the application
-	form the time an algorithm takes. the other defenition for this type of attack is push a system to miss all the scheduled tmimming. Generally any attack which is related to time is called timming attack. 
-	<br> 
-	<h6>system scheduler</h6>
-	scheduling is the process of controlling and prioritizing messages sent to a processor.  
-	An internal operating system program, called the scheduler, performs this task. 
-	The goal is maintaining a constant amount of work for the processor, eliminating highs and lows 
-	in the workload and making sure each process is completed within a reasonable time frame. 
-	While scheduling is important to all systems, it is especially important in a real-time system.
+    
+    Timing attack covers a large part of definitions as a method to break the security mechanisms of an application by gaining information that is indirectly leaked by the application
+    form the time an algorithm takes. The other definition for this type of attack is to push a system to miss all the scheduled trimming. Generally, any attack related to time is called a timing attack. 
+    <br> 
+    <h6>system scheduler</h6>
+    scheduling is the process of controlling and prioritizing messages sent to a processor.  
+    An internal operating system program called the scheduler performs this task. 
+    The goal is to maintain a constant amount of work for the processor, eliminating highs and lows 
+    in the workload and ensuring each process is completed within a reasonable time frame. 
+    While scheduling is vital to all systems, it is crucial in real time.
 
-	<br>
-	<br>
-	Any process in the scheduler has a deadline which is a very important property in real-time systems like this rover.
-	the task should be done before the deadline.but waht if the adversary can do something to occupy the whole processor resorces and push 
-	the system to miss all deadlines?
+    <br>
+    <br>
+    Any process in the scheduler has a deadline which is a fundamental property in real-time systems like this rover.
+    The task should be done before the deadline. But what if the adversary can do something to occupy the whole processor's resources and push 
+    the system to miss all deadlines?
 
-	<br>
-	The question you have to solve here is how to occupy all the computational resources on the rover while the rover is doing a mission . 
-
-
+    <br>
+    The question you have to solve here is how to occupy all the rover's computational resources while running a mission. 
 
 
 
-	<h4>Submission Instructions</h4>
-	<ul>
-		<li>
-            make a mission : generating path of the picture below by creating waypoints that the robot can take.<b>[5 points]</b>
-			<br>
-			<b>Bonuse :</b> Mathematicaly show that the point your choosing is reachable by rover.(you can use this <a href="https://arxiv.org/abs/2012.02978">paper</a> for the calculation)<b>[5 points]</b>
-			<br>
-			<img src="images/path.PNG" alt="path" style="width:20%">
-		</li>
-		<li>
-            controller attack: deply the controller attack and make the rover stop middle of the mission and show the result to TA<b>[10 points]</b>
-			<br>
-			<b>Bonuse :</b> Make the robot follow another path just by changing pid parameters.<b>[5 points]</b>
-			
-		</li>
-		<li>timming attack : run the timming attack on all the misiions you have(rectangle, eight, part1) and show the result to the TA.<b>[10 points]</b></li>
-	</ul>
+
+
+    <h4>Submission Instructions</h4>
+    <ul>
+        <li>
+            Make a mission: generating the path of the picture below by creating waypoints that the robot can take.<b>[5 points]</b>
+            <br>
+            <b>Bonuse:</b> Mathematically show that the point you are choosing is reachable by rover.(you can use this <a href="https://arxiv.org/abs/2012.02978">paper</a> for the calculation)<b>[5 points]</b>
+            <br>
+            <img src="images/path.PNG" alt="path" style="width:20%">
+        </li>
+        <li>
+            Controller attack: deploy the controller attack and make the rover stop middle of the mission, and show the result to TA<b>[10 points]</b>
+            <br>
+            <b>Bonuse:</b> Make the robot follow another path just by changing PID parameters.<b>[5 points]</b>
+            
+        </li>
+        <li>Timming attack: run the timing attack on all the missions you have(rectangle, eight, part1) and show the result to the TA.<b>[10 points]</b></li>
+    </ul>
 </body>

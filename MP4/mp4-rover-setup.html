@@ -97,10 +97,10 @@
             What is ROS, and how are we using it?
         </li>
         <li>
-            how to ssh to a system
+            How to ssh to a system
         </li>
         <li>
-            how to run and control the rover.
+            How to run and control the rover.
         </li>
     </ul>
 
@@ -132,7 +132,7 @@
     <br>
     This publisher and subscriber communication have the following characteristics:
     <ol>
-        <li>opics are used for many-to-many communication. Many publishers can send messages to the same topic and many subscribers can receive them.</li>
+        <li>Topics are used for many-to-many communication. Many publishers can send messages to the same topic and many subscribers can receive them.</li>
         <li>Publishers and subscribers are decoupled through topics and can be created and destroyed in any order. A message can be published to a topic even if there are no active subscribers.</li>
     </ol>
     <br>
@@ -143,21 +143,21 @@
 
 
 
-	<h6>startup the Rover</h6>
+	<h6>Startup the Rover</h6>
     <ol>
-        <li>each rover has 2 batteies. make sure the rover batteries are fully charged</li>
-        <li>turn on the radio controller</li>
+        <li>Each rover has 2 batteies. make sure the rover batteries are fully charged</li>
+        <li>Turn on the radio controller</li>
         <li>
-            put one of the charged batteries in the correct position, as shown in the picture, and plug it into the rover
+            Put one of the charged batteries in the correct position, as shown in the picture, and plug it into the rover
             <br>
             <img src="images/bat_pose.jpg" alt="battery position" style="width:100%">
         </li>
 
-        <li> reconnect the sensor by plugging out and plugging it in again and turn on Rover ESC (Electronic Speed Controller)
-            by pushing the button shown in the picture one time (don't hold the button too long)
+        <li> Reconnect the sensor by plugging out and plugging it in again and turn on Rover ESC (Electronic Speed Controller)
+            by pushing the button shown in the picture one time (Don't hold the button for too long)
             <img src="images/esc_button.jpg" alt="ESC and sensor" style="width:100%">
         </li>
-        <li>connect your computer to the same network as the rover. The SSID is <code>slabrouter</code>, and the password is
+        <li>Connect your computer to the same network as the rover. The SSID is <code>slabrouter</code>, and the password is
             <code>RoyalFlush</code>
         </li>
         <li>
@@ -198,21 +198,21 @@
 			</table>
 		</li>
         <li>
-            open a terminal on your computer and make an ssh connection to the rover by typing <code>ssh pi@rover-ip</code>
+            Open a terminal on your computer and make an ssh connection to the rover by typing <code>ssh pi@rover-ip</code>
             and put <code>raspberry</code> for the login password
         </li>
         <li>
-            we need to run several scripts through this shell, so one way of doing that is to lunch several shells by <a
+            We need to run several scripts through this shell, so one way of doing that is to lunch several shells by <a
                 href="https://linuxize.com/post/how-to-use-linux-screen/">screen</a>
-            <br>first, write this command to create a new shell
+            <br>First, write this command to create a new shell
             <br><code>screen -S ros_launch</code>
-            <br> in the new shell, execute the rovers launch files
+            <br> In the new shell, execute the rovers launch files
             <br><code>roslauch gwurover simple_control.launch </code>
         </li>
-        <li>detach the shell and go back to the first shell by pressing this sequence of keys <code>Ctrl+a</code>and
+        <li>Detach the shell and go back to the first shell by pressing this sequence of keys <code>Ctrl+a</code>and
             <code>d</code>
         </li>
-        <li>you should be able to control the rover with the radio control by just moving the right stick</li>
+        <li>You should be able to control the rover with the radio control by just moving the right stick</li>
     </ol>
     </p>
 
@@ -233,18 +233,18 @@
 
     <h4>Run automated mission on Rover</h4>
     <ol>
-        <li>got back to the shell that you ran the launch file by typing <code>screen -r launch</code></li>
-        <li>cancle the current running script with pressing ctr+c</li>
-        <li>put the robot on the left-down corner of the space specified for the rover
-            <br>that position is the (0,0) position for the rover.
+        <li>Got back to the shell that you ran the launch file by typing <code>screen -r launch</code></li>
+        <li>Cancle the current running script with pressing ctr+c</li>
+        <li>Put the robot on the left-down corner of the space specified for the rover
+            <br>That position is the (0,0) position for the rover.
         </li>
-        <li>run this command <code>roslaunch gwurover simple_pid.launch</code></li>
-        <li>on the radio controller pull the SG key(Red) up and after that pull the SF key(Green) up to start the
+        <li>Run this command <code>roslaunch gwurover simple_pid.launch</code></li>
+        <li>On the radio controller pull the SG key(Red) up and after that pull the SF key(Green) up to start the
             mission.
             <br> <img src="images/radio.jpg" alt="radio" style="width:100%">
         </li>
         <br>
-        <li> the rover should follow a 2mx2m rectangule</li>
+        <li> The rover should follow a 2mx2m rectangule</li>
     </ol>
     </p>
 
@@ -252,7 +252,7 @@
     <h4>Submission Instructions</h4>
     <ul>
         <li>
-            no submission is needed! Show the result to the TA at the time of your booking to work with the rover.
+            No submission is needed! Show the result to the TA at the time of your booking to work with the rover.
         </li>
     </ul>
 
