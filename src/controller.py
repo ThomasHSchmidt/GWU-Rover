@@ -16,6 +16,11 @@ from PID import pid
 import math
 
 
+data_buffer = []  # Array of arrays to store data
+buffer_enabled = False  # Switch to control buffer
+outputFile = open('dataFile.txt', 'w')  # Open file to write to
+
+
 def map(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
@@ -50,85 +55,88 @@ def t265_velocity_callback(data):
 
 
 
-
 def algo():
-    rate = rospy.Rate(200) # ~200hz
+    rate = rospy.Rate(200)  # ~200hz
     waypoint_po_x = 0
     waypoint_po_y = 0
     sensor_reset_key_on_flag = False
     traj_shape = ""
     while not rospy.is_shutdown():    
+        if rcin_msg.ch6 > 1000:  # The key is on 
+            tetha = math.atan2(waypoint_po_y + sensor_pos_msg.position.x , waypoint_po_x - sensor_pos_msg.position.z) * ( 180 / math.pi )
+            dist = math.sqrt((waypoint_po_y + sensor_pos_msg.position.x) ** 2 + (waypoint_po_x - sensor_pos_msg.position.z) ** 2 )
         
-        if rcin_msg.ch6 > 1000: #the key is on 
-            
-            
-            tetha = math.atan2( waypoint_po_y + sensor_pos_msg.position.x , waypoint_po_x - sensor_pos_msg.position.z) * ( 180 / math.pi )
-            dist = math.sqrt( (waypoint_po_y + sensor_pos_msg.position.x) ** 2 + (waypoint_po_x - sensor_pos_msg.position.z) ** 2 )
-
-            
-            
-            if rcin_msg.ch8 > 2000: #speed
-                if traj_shape != 'circle':
-                    traj_shape = 'circle'
-                    dist = 0
-            elif rcin_msg.ch8 < 1000:
-                if traj_shape != 'eight':
-                    traj_shape = 'eight'
-                    dist = 0
+            # Switch to enable buffer
+            if rcin_msg.ch7 > 2000:
+                buffer_enabled = True
             else:
-                if traj_shape != 'MP':
-                    traj_shape = 'MP'
-                    dist = 0
-           
+                buffer_enabled = False
+
+            # Logic to select trajectory shape based on RC input
+            if rcin_msg.ch8 > 2000:
+                traj_shape = 'circle'
+                dist = 0
+            elif rcin_msg.ch8 < 1000:
+                traj_shape = 'eight'
+                dist = 0
+            else:
+                traj_shape = 'MP'
+                dist = 0
+            
             if dist < 0.2:
-                #next waypoint
+                # Next waypoint
                 resp = get_waypoint(traj_shape)
                 waypoint_po_x = resp.x
                 waypoint_po_y = resp.y
-                print('new point recived:',waypoint_po_x,waypoint_po_y)
-            
+                print('New point received:', waypoint_po_x, waypoint_po_y)
 
-            
-            
-            (roll, pitch, yaw) = euler_from_quaternion ([sensor_pos_msg.orientation.x, sensor_pos_msg.orientation.y, 
-                                                            sensor_pos_msg.orientation.z, sensor_pos_msg.orientation.w])
+                # Check if buffer switch is on
+                if buffer_enabled:
+                    # Appending information to the array to prepare for flushing
+                    data_buffer.append([waypoint_po_x, waypoint_po_y, sensor_pos_msg.position.x, sensor_pos_msg.position.y, steer_pid_value, speed_pid_value])
+                    print("Data appended to Array:", data_buffer)
+                    # Writing data to file
+                    for i in data_buffer:
+                        entry = data_buffer[i] + "\n"
+                        outputFile.write(entry)
+
+                    print("Data written to file")
+
+            # Compute orientation and speed based on sensor data
+            (roll, pitch, yaw) = euler_from_quaternion([sensor_pos_msg.orientation.x, sensor_pos_msg.orientation.y, 
+                                                        sensor_pos_msg.orientation.z, sensor_pos_msg.orientation.w])
             x_speed = abs(sensor_vel_msg.linear.z * math.cos(pitch)) + abs(sensor_vel_msg.linear.x * math.sin(pitch))
             pitch = -pitch * (180/math.pi)
             yaw = yaw * (180/math.pi)
-            if abs(yaw) > 100:pitch = (180 - abs(pitch)) * abs(pitch)/pitch
+            if abs(yaw) > 100:
+                pitch = (180 - abs(pitch)) * abs(pitch)/pitch
+            
             print("{:3.1f}".format(tetha),
-                          "{:3.1f}".format(pitch),
-                          "{:3.1f}".format(sensor_pos_msg.position.z),
-                          "{:3.1f}".format(-sensor_pos_msg.position.x), end='\r')
+                  "{:3.1f}".format(pitch),
+                  "{:3.1f}".format(sensor_pos_msg.position.z),
+                  "{:3.1f}".format(-sensor_pos_msg.position.x), end='\r')
+
+            # Calculate control values for steering and speed
+            if abs(pitch) > 90 and abs(tetha) > 90 and pitch * tetha < 0:
+                neg = -1
+            else:
+                neg = 1
             
-
-            if abs(pitch) > 90 and abs(tetha) > 90 and pitch*tetha < 0: neg = -1
-            else: neg = 1
-
-            linear_pos_pid_value = linear_pos_pid.update_pid(0,dist)
+            linear_pos_pid_value = linear_pos_pid.update_pid(0, dist)
             if linear_pos_pid_value >= 0:
-                    speed_pid_value = speed_pid.update_pid(x_speed,0.4)
-            steer_pid_value = steer_pid.update_pid(pitch,tetha)
+                speed_pid_value = speed_pid.update_pid(x_speed, 0.4)
+            steer_pid_value = steer_pid.update_pid(pitch, tetha)
+            
+            # Publish control values for steering and speed
+            steer_pub.publish(map(neg * steer_pid_value, -1000, 1000, -100, 100))
+            speed_pub.publish(map(speed_pid_value, -1000, 1000, 100, -100))
 
-            
-            steer_pub.publish(map(neg * steer_pid_value,-1000,1000,-100,100))
-            speed_pub.publish(map(speed_pid_value,-1000,1000,100,-100))
-            
-            # steer_pub.publish(map(rcin_msg.ch1,800,2100,-100,100))
-            # speed_pub.publish(map(rcin_msg.ch2,800,2100,100,-100))
         else:
-            # if rcin_msg.ch5 > 1000 and not sensor_reset_key_on_flag:
-            #     sensor_reset_key_on_flag = True
-            #     sensor_reset_pub.publish('')
-            # else: 
-            #     sensor_reset_key_on_flag = False
-            steer_pub.publish(map(rcin_msg.ch1,800,2100,-100,100))
-            speed_pub.publish(map(rcin_msg.ch2,800,2100,100,-100))
+            # Publish RC input values for steering and speed if key is off
+            steer_pub.publish(map(rcin_msg.ch1, 800, 2100, -100, 100))
+            speed_pub.publish(map(rcin_msg.ch2, 800, 2100, 100, -100))
+
         rate.sleep()
-
-
-
-
 
 if __name__ == '__main__':
     try:
@@ -143,7 +151,6 @@ if __name__ == '__main__':
         rospy.Subscriber("realsense/pose", Pose, t265_position_callback)
         rospy.Subscriber("realsense/velocity", Twist, t265_velocity_callback)
         
-        
         steer_pub = rospy.Publisher("controller/steer", Float32, queue_size=10)
         speed_pub = rospy.Publisher("controller/speed", Float32, queue_size=10)
         sensor_reset_pub = rospy.Publisher("realsense/reset", String, queue_size=10)
@@ -155,8 +162,6 @@ if __name__ == '__main__':
         steer_pid.set_pid_limit(1000)
         steer_pid.set_I_limit(100)
         
-        
-        
         linear_pos_pid = pid(1,0,0.35)
         linear_pos_pid.set_pid_limit(0.4)
         
@@ -165,7 +170,9 @@ if __name__ == '__main__':
         speed_pid.set_I_limit(100)
         
         traj_reader = traj()
-        
+
         algo()
+
     except rospy.ROSInterruptException:
+        outputFile.close()
         pass
